@@ -66,11 +66,6 @@ def draw_bar_plot():
     return fig
 
 
-# https://github.com/mwaskom/seaborn/issues/915
-# TypeError: box() got an unexpected keyword argument 'label'
-def fixed_boxplot(*args, label=None, **kwargs):
-    sns.boxplot(*args, **kwargs, labels=[label])
-
 
 def draw_box_plot():
     # Prepare data for box plots (this part is done!)
@@ -83,20 +78,20 @@ def draw_box_plot():
 
     # Draw box plots (using Seaborn)
     
-    df_box["Page Views"] = df_box["value"]
-    df_box["Month"] = df_box["month"]
-    df_box["Year"] = df_box["year"]
-    g = sns.PairGrid(df_box, y_vars=["Page Views"], x_vars=["Year", "Month"], palette="hls")
-    g.map(fixed_boxplot)
-    fig = g.fig
-    fig.set_figheight(6)
-    fig.set_figwidth(16)
-    fig.axes[0].set_ylabel('Page Views')
-    fig.axes[1].set_ylabel('Page Views')
-    fig.axes[0].set_title('Year-wise Box Plot (Trend)')
-    fig.axes[1].set_title('Month-wise Box Plot (Seasonality)')
-    plt.tight_layout()
+    df_box['month_num'] = df_box['date'].dt.month
+    df_box = df_box.sort_values('month_num')
+    
+    fig, axes= plt.subplots(nrows=1, ncols=2, figsize=(16,6))
+    axes[0] = sns.boxplot(x=df_box['year'], y=df_box['value'], ax= axes[0])
+    axes[1] = sns.boxplot(x=df_box['month'], y=df_box['value'], ax= axes[1])
 
+    axes[0].set_title('Year-wise Box Plot (Trend)')
+    axes[0].set_ylabel('Page Views')
+    axes[0].set_xlabel('Year')
+
+    axes[1].set_title('Month-wise Box Plot (Seasonality)')
+    axes[1].set_ylabel('Page Views')
+    axes[1].set_xlabel('Month')
 
 
 
